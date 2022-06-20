@@ -1,0 +1,131 @@
+[PrefixDeclaration]
+:		http://www.semanticweb.org/marcozenere/ontologies/2021/3/untitled-ontology-6
+f1:		http://www.semanticweb.org/marcozenere/ontologies/2021/3/untitled-ontology-6#
+owl:		http://www.w3.org/2002/07/owl#
+rdf:		http://www.w3.org/1999/02/22-rdf-syntax-ns#
+xml:		http://www.w3.org/XML/1998/namespace
+xsd:		http://www.w3.org/2001/XMLSchema#
+foaf:		http://xmlns.com/foaf/0.1/
+obda:		https://w3id.org/obda/vocabulary#
+rdfs:		http://www.w3.org/2000/01/rdf-schema#
+
+[MappingDeclaration] @collection [[
+mappingId	Driver
+target		:#F1/driver/{driverId} a :#Driver ; :#DriverRef {driverRef}^^xsd:string ; foaf:firstName {forename}^^xsd:string ; foaf:lastName {surname}^^xsd:string ; :#DriverDoB {dob}^^xsd:string ; :#DriverNationality {nationality}^^xsd:string . 
+source		select * from F1.Driver;
+
+mappingId	Circuit
+target		:#F1/circuit/{circuitId} a :#Circuit ; :#CircuitRef {circuitRef}^^xsd:string ; :#CircuitName {name}^^xsd:string ; :#CircuitLocationName {location}^^xsd:string ; :#CircuitLocationCountry {country}^^xsd:string . 
+source		select * from F1.Circuit;
+
+mappingId	Constructor
+target		:#F1/constructor/{constructorId} a :#Constructor ; :#ConstructorName {name}^^xsd:string ; :#ConstructorNationality {nationality}^^xsd:string . 
+source		select constructorId, name, nationality from F1.Constructor;
+
+mappingId	Status
+target		:#F1/status/{statusId} a :#Status ; :#StatusDescription {status}^^xsd:string . 
+source		select * from F1.Status;
+
+mappingId	Race
+target		:#F1/race/{raceId} a :#Race ; :#RaceYear {year}^^xsd:integer ; :#RaceCircuitId {circuitId}^^xsd:integer ; :#RaceName {name}^^xsd:string . 
+source		select * from F1.Race;
+
+mappingId	Result
+target		:#F1/result/{resultId} a :#Result ; :#ResultRaceId {raceId}^^xsd:integer ; :#ResultDriverId {driverId}^^xsd:integer ; :#ResultConstructId {constructorId}^^xsd:integer ; :#ResultGrid {grid}^^xsd:integer ; :#ResultPosition {position}^^xsd:float ; :#ResultPoints {points}^^xsd:float ; :#ResultStatus {statusId}^^xsd:integer . 
+source		select * from F1.Result;
+
+mappingId	PitStop
+target		:#F1/pitStop/{raceId}/{driverId}/{stop} a :#PitStop ; :#PitStopRaceId {raceId}^^xsd:integer ; :#PitStopDriverId {driverId}^^xsd:integer ; :#LapNumberPitStop {lap}^^xsd:integer ; :#Duration {duration}^^xsd:string . 
+source		select * from F1.PitStop;
+
+mappingId	LapTime
+target		:#F1/lapTime/{raceId}/{driverId}/{lap} a :#LapTime ; :#LapTimeRaceId {raceId}^^xsd:integer ; :#LapTimeDriverId {driverId}^^xsd:integer ; :#LapNumber {lap}^^xsd:integer ; :#PositionLapTime {position}^^xsd:integer ; :#TimeLap {time}^^xsd:string . 
+source		select * from F1.LapTime;
+
+mappingId	DriverStandings
+target		:#F1/DriverStandings/{driverStandingsId}/{raceId}/{driverId} a :#DriverStandings ; :#DriverStandRaceId {raceId}^^xsd:integer ; :#DriverStandDriverId {driverId}^^xsd:integer ; :#DriverStandPoints {points}^^xsd:float ; :#DriverStandPosition {position}^^xsd:integer . 
+source		select * from F1.DriverStandings;
+
+mappingId	ConstructorStandings
+target		:#F1/ConstructorStandings/{constructorStandingsId}/{raceId}/{constructorId} a :#ConstructorStandings ; :#ConstrStandRaceId {raceId}^^xsd:integer ; :#ConstrStandConstrId {constructorId}^^xsd:integer ; :#ConstrStandPoints {points}^^xsd:float ; :#ConstrStandPosition {position}^^xsd:integer . 
+source		select * from F1.ConstructorStandings;
+
+mappingId	Object Property: AchievedByDriver
+target		:#F1/result/{rId} :#AchievedByDriver :#F1/driver/{dId} . 
+source		select r.resultId as rId, d.driverId as dId
+			from F1.Result as r, F1.Driver as d
+			where r.driverId = d.driverId
+
+mappingId	ObjectProperty: hasStatus
+target		:#F1/result/{rId} :#hasStatus :#F1/status/{sId} . 
+source		select r.resultId as rId, s.statusId as sId
+			from F1.Result as r, F1.Status as s
+			where r.statusId = s.statusId
+
+mappingId	Object Property: AchievedByConstructor
+target		:#F1/result/{rId} :#AchievedByConstructor :#F1/constructor/{cId} . 
+source		select r.resultId as rId, c.constructorId as cId
+			from F1.Result as r, F1.Constructor as c
+			where r.constructorId = c.constructorId
+
+mappingId	Object Property: ObtainedIn
+target		:#F1/result/{r1Id} :#ObtainedIn :#F1/race/{r2Id} . 
+source		select r1.resultId as r1Id, r2.raceId as r2Id
+			from F1.Result as r1, F1.Race as r2
+			where r1.raceId = r2.raceId
+
+mappingId	Object Property: HeldIn
+target		:#F1/race/{rId} :#HeldIn :#F1/circuit/{cId} . 
+source		select r.raceId as rId, c.circuitId as cId
+			from F1.Race as r, F1.Circuit as c
+			where r.circuitId = c.circuitId
+
+mappingId	Object Property: LapTimeDoneIn
+target		:#F1/lapTime/{lpRaceId}/{lpDriverId}/{lpLap} :#LapTimeDoneIn :#F1/race/{rId} . 
+source		select l.raceId as lpRaceId, l.driverId as lpDriverId, l.lap as lpLap, r.raceId as rId
+			from F1.LapTime as l, F1.Race as r
+			where l.raceId = r.raceId
+
+mappingId	Object Property: LapTimeDoneBy
+target		:#F1/lapTime/{lpRaceId}/{lpDriverId}/{lpLap} :#LapTimeDoneBy :#F1/driver/{dId} . 
+source		select l.raceId as lpRaceId, l.driverId as lpDriverId, l.lap as lpLap, d.driverId as dId
+			from F1.LapTime as l, F1.Driver as d
+			where l.driverId = d.driverId
+
+mappingId	Object Property: PitStopDoneIn
+target		:#F1/pitStop/{ptRaceId}/{ptDriverId}/{ptStop} :#PitStopDoneIn :#F1/race/{rId} . 
+source		select p.raceId as ptRaceId, p.driverId as ptDriverId, p.stop as ptStop, r.raceId as rId
+			from F1.PitStop as p, F1.Race as r
+			where p.raceId = r.raceId
+
+mappingId	Object Property: PitStopDoneBy
+target		:#F1/pitStop/{ptRaceId}/{ptDriverId}/{ptStop} :#PitStopDoneBy :#F1/driver/{dId} . 
+source		select p.raceId as ptRaceId, p.driverId as ptDriverId, p.stop as ptStop, d.driverId as dId
+			from F1.PitStop as p, F1.Driver as d
+			where p.driverId = d.driverId
+
+mappingId	Object Property: DriverStandingsDriver
+target		:#F1/driverStandings/{d1Id} :#DriverStandingsDriver :#F1/driver/{d2Id} . 
+source		select d1.driverStandingsId as d1Id, d2.driverId as d2Id
+			from F1.DriverStandings as d1, F1.Driver as d2
+			where d1.driverId = d2.driverId
+
+mappingId	Object Property: DriverStandingsRace
+target		:#F1/driverStandings/{dId} :#DriverStandingsRace :#F1/race/{rId} . 
+source		select d.driverStandingsId as dId, r.raceId as rId
+			from F1.DriverStandings as d, F1.Race as r
+			where d.raceId = r.raceId
+
+mappingId	Object Property: ConstructorStandingsRace
+target		:#F1/constructorStandings/{cId} :#ConstructorStandingsRace :#F1/race/{rId} . 
+source		select c.constructorStandingsId as cId, r.raceId as rId
+			from F1.ConstructorStandings as c, F1.Race as r
+			where c.raceId = r.raceId
+
+mappingId	Object Property: ConstructorStandingsConstructor
+target		:#F1/constructorStandings/{c1Id} :#ConstructorStandingsConstructor :#F1/constructor/{c2Id} . 
+source		select c1.constructorStandingsId as c1Id, c2.constructorId as c2Id
+			from F1.ConstructorStandings as c1, F1.Constructor as c2
+			where c1.constructorId = c2.constructorId
+]]
+
